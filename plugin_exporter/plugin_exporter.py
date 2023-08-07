@@ -74,7 +74,7 @@ class PluginExporter:
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
 
-        #List that will contain the metadata of all installed plugins
+        # List that will contain the metadata of all installed plugins
         self.plugins_metadata = []
 
     # noinspection PyMethodMayBeStatic
@@ -233,7 +233,7 @@ class PluginExporter:
             metadata = self.iface.pluginManagerInterface().pluginMetadata(plugin)
             if self.dlg.chk_official_plugins.isChecked():
                 if metadata['zip_repository'] == 'QGIS Official Plugin Repository':
-                    self.plugins_metadata.append(metadata)  #Adds the plugin metadata to the list
+                    self.plugins_metadata.append(metadata)  # Adds the plugin metadata to the list
                 else:
                     continue
             else:
@@ -353,8 +353,8 @@ class PluginExporter:
                                                      "Skipped " + plugin['name'] + " as it's already installed.")
                     continue
             try:
-               pyplugin_installer.instance().installPlugin(plugin['id'])
-               self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
+                pyplugin_installer.instance().installPlugin(plugin['id'])
+                self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
             except KeyError:
                 self.iface.messageBar().pushMessage("Error",
                                                     "Could not install " + plugin['name'] + ".",
