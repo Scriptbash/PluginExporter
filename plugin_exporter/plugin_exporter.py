@@ -205,6 +205,7 @@ class PluginExporter:
             self.dlg.chk_official_plugins.stateChanged.connect(self.get_plugins)
             self.dlg.btn_refresh.clicked.connect(self.get_plugins)
             self.dlg.rd_import.toggled.connect(self.toggle_widget)
+            self.dlg.combo_file_format.currentIndexChanged.connect(self.set_filter)
 
         # show the dialog
         self.dlg.show()
@@ -370,3 +371,9 @@ class PluginExporter:
             self.dlg.chk_skip_installed.setEnabled(False)
             self.dlg.file_output_export.setEnabled(True)
             self.dlg.combo_file_format.setEnabled(True)
+
+    def set_filter(self):
+        if self.dlg.combo_file_format.currentText() == '.json':
+            self.dlg.file_output_export.setFilter('*.json')
+        elif self.dlg.combo_file_format.currentText() == '.csv':
+            self.dlg.file_output_export.setFilter('*.csv')
