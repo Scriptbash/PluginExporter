@@ -103,7 +103,7 @@
          <bool>false</bool>
         </property>
         <property name="filter">
-         <string>*.csv,*.json</string>
+         <string>*.csv;*.json</string>
         </property>
        </widget>
       </item>
