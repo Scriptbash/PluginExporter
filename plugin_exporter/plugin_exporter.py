@@ -23,13 +23,20 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QLabel, QCheckBox, QComboBox
+from qgis.gui import QgsPluginManagerInterface
+from qgis.core import Qgis
+import qgis.utils
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .plugin_exporter_dialog import PluginExporterDialog
+import pyplugin_installer
 import os.path
+import csv
+import json
+import pathlib
 
 
 class PluginExporter:
@@ -66,6 +73,9 @@ class PluginExporter:
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
+
+        #List that will contain the metadata of all installed plugins
+        self.plugins_metadata = []
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -188,6 +198,12 @@ class PluginExporter:
         if self.first_start == True:
             self.first_start = False
             self.dlg = PluginExporterDialog()
+            self.get_plugins()
+            self.dlg.btn_select_all.clicked.connect(self.select_all)
+            self.dlg.btn_deselect_all.clicked.connect(self.deselect_all)
+            self.dlg.chk_active_plugins.stateChanged.connect(self.get_plugins)
+            self.dlg.btn_refresh.clicked.connect(self.get_plugins)
+            self.dlg.rd_import.toggled.connect(self.toggle_widget)
 
         # show the dialog
         self.dlg.show()
@@ -195,6 +211,146 @@ class PluginExporter:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+            if self.dlg.rd_export.isChecked():
+                self.export_plugins()
+            elif self.dlg.rd_import.isChecked():
+                self.import_plugins()
+
+    def get_plugins(self):
+        if self.dlg.chk_active_plugins.isChecked():
+            plugins = qgis.utils.active_plugins
+        else:
+            plugins = qgis.utils.available_plugins
+        self.add_plugins_to_table(plugins)
+
+    def add_plugins_to_table(self, plugins):
+        self.clear_plugins_table()
+        table = self.dlg.table_plugins
+
+        for plugin in plugins:
+            metadata = self.iface.pluginManagerInterface().pluginMetadata(plugin)
+            self.plugins_metadata.append(metadata)  #Adds the plugin metadata to the list
+            current_row = table.rowCount()  # Get the number of rows the table has
+            table.insertRow(current_row)  # Inserts a new row below the last row
+            chk_selected = QCheckBox()
+            chk_selected.setChecked(True)
+            lbl_plugin_name = QLabel()
+            lbl_plugin_name.setText(metadata['name'])
+            lbl_version = QLabel()
+            lbl_version.setText(metadata['version_installed'])
+            lbl_author = QLabel()
+            lbl_author.setText(metadata['author_name'])
+
+            table.setCellWidget(current_row, 0, chk_selected)
+            table.setCellWidget(current_row, 1, lbl_plugin_name)
+            table.setCellWidget(current_row, 2, lbl_version)
+            table.setCellWidget(current_row, 3, lbl_author)
+
+            table.resizeColumnsToContents()
+
+    def select_all(self):
+        table = self.dlg.table_plugins
+        rows = table.rowCount()
+        for row in range(rows):
+            checkbox = table.cellWidget(row, 0)
+            checkbox.setChecked(True)
+
+    def deselect_all(self):
+        table = self.dlg.table_plugins
+        rows = table.rowCount()
+        for row in range(rows):
+            checkbox = table.cellWidget(row, 0)
+            checkbox.setChecked(False)
+
+    def clear_plugins_table(self):
+        table = self.dlg.table_plugins
+        while table.rowCount() > 0:
+            table.removeRow(0)
+
+    def export_plugins(self):
+        file_format = self.dlg.combo_file_format.currentText()
+        output_file = self.dlg.file_output_export.filePath()
+        table = self.dlg.table_plugins
+        plugin_list = []
+        rows = table.rowCount()
+        cols = table.columnCount()
+
+        for row in range(rows):
+            for col in range(cols):
+                current_widget = table.cellWidget(row, col)
+                if isinstance(current_widget, QCheckBox):
+                    if not current_widget.isChecked():
+                        break
+                elif isinstance(current_widget, QLabel):
+                    # plugin_list.append(current_widget.text())
+                    # next((item for item in dicts if item["name"] == "Pam"), None)
+                    current_plugin = next(
+                        (item for item in self.plugins_metadata if item["name"] == current_widget.text()), None)
+                    if current_plugin:
+                        plugin_list.append(current_plugin)
+        if plugin_list:
+            if output_file:
+                if file_format == '.csv':
+                    with open(output_file, 'w', encoding='utf8', newline='') as f:
+                            keys = plugin_list[0].keys()
+                            dict_writer = csv.DictWriter(f, keys)
+                            dict_writer.writeheader()
+                            dict_writer.writerows(plugin_list)
+                    self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
+                elif file_format == '.json':
+                    with open(output_file, 'w') as file:
+                        json.dump(plugin_list, file)
+                    self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
+            else:
+                self.iface.messageBar().pushMessage("Error",
+                                                    "You must select an output directory.",
+                                                    level=Qgis.Critical)
+        else:
+            self.iface.messageBar().pushMessage("Error",
+                                                "At least one plugin must be selected.",
+                                                level=Qgis.Critical)
+
+    def import_plugins(self):
+        input_file = self.dlg.file_input_import.filePath()
+        file_extension = pathlib.Path(input_file).suffix
+
+        if file_extension == '.csv':
+            try:
+                with open(input_file, 'r') as f:
+                    dict_reader = csv.DictReader(f)
+                    plugins = list(dict_reader)
+            except:
+                self.iface.messageBar().pushMessage("Error",
+                                                    "Unable to read the CSV file.",
+                                                    level=Qgis.Critical)
+        elif file_extension == '.json':
+            try:
+                f = open(input_file)
+                plugins = json.load(f)
+            except:
+                self.iface.messageBar().pushMessage("Error",
+                                                    "Unable to read the JSON file.",
+                                                    level=Qgis.Critical)
+
+            pyplugin_installer.instance().fetchAvailablePlugins(False)
+            for plugin in plugins:
+                try:
+                    pyplugin_installer.instance().installPlugin(plugin['id'])
+                except KeyError:
+                    self.iface.messageBar().pushMessage("Error",
+                                                        "Could not install " + plugin['name'] + ".",
+                                                        level=Qgis.Critical)
+        else:
+            self.iface.messageBar().pushMessage("Error",
+                                                "Unsupported file type.",
+                                                level=Qgis.Critical)
+
+    def toggle_widget(self):
+        if self.dlg.rd_import.isChecked():
+            self.dlg.file_output_export.setEnabled(False)
+            self.dlg.combo_file_format.setEnabled(False)
+            self.dlg.file_input_import.setEnabled(True)
+        else:
+            self.dlg.file_input_import.setEnabled(False)
+            self.dlg.file_output_export.setEnabled(True)
+            self.dlg.combo_file_format.setEnabled(True)
