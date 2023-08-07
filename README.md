@@ -35,6 +35,10 @@ I am planning on releasing the plugin in the official QGIS repo soon. In the mea
 * Select a file to import and click on "OK"
 * The plugin will install the plugins and by default will skip those already installed
 
+## Screenshot
+![image](https://github.com/Scriptbash/PluginExporter/assets/98601298/4b92a3da-2cab-448c-865b-0949eeef5f3f)
+
+
 ## Help
 
 If you have an issue, a feature request or feedback, please let me know by opening an issue here : https://github.com/Scriptbash/PluginExporter/issues
