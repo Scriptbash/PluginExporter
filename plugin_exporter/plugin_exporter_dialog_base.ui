@@ -97,13 +97,26 @@
       <property name="leftMargin">
        <number>40</number>
       </property>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QgsFileWidget" name="file_input_import">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="filter">
          <string>*.csv,*.json</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="chk_skip_installed">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Skip already installed</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -160,7 +173,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Only active plugins</string>
+         <string>Active plugins only</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -221,6 +234,16 @@
         </property>
         <property name="text">
          <string>Deselect all</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="chk_official_plugins">
+        <property name="text">
+         <string>Official plugins only</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

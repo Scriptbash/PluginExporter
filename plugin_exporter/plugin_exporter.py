@@ -202,6 +202,7 @@ class PluginExporter:
             self.dlg.btn_select_all.clicked.connect(self.select_all)
             self.dlg.btn_deselect_all.clicked.connect(self.deselect_all)
             self.dlg.chk_active_plugins.stateChanged.connect(self.get_plugins)
+            self.dlg.chk_official_plugins.stateChanged.connect(self.get_plugins)
             self.dlg.btn_refresh.clicked.connect(self.get_plugins)
             self.dlg.rd_import.toggled.connect(self.toggle_widget)
 
@@ -229,7 +230,14 @@ class PluginExporter:
 
         for plugin in plugins:
             metadata = self.iface.pluginManagerInterface().pluginMetadata(plugin)
-            self.plugins_metadata.append(metadata)  #Adds the plugin metadata to the list
+            if self.dlg.chk_official_plugins.isChecked():
+                if metadata['zip_repository'] == 'QGIS Official Plugin Repository':
+                    self.plugins_metadata.append(metadata)  #Adds the plugin metadata to the list
+                else:
+                    continue
+            else:
+                self.plugins_metadata.append(metadata)
+
             current_row = table.rowCount()  # Get the number of rows the table has
             table.insertRow(current_row)  # Inserts a new row below the last row
             chk_selected = QCheckBox()
@@ -246,7 +254,7 @@ class PluginExporter:
             table.setCellWidget(current_row, 2, lbl_version)
             table.setCellWidget(current_row, 3, lbl_author)
 
-            table.resizeColumnsToContents()
+        table.resizeColumnsToContents()
 
     def select_all(self):
         table = self.dlg.table_plugins
@@ -313,6 +321,7 @@ class PluginExporter:
     def import_plugins(self):
         input_file = self.dlg.file_input_import.filePath()
         file_extension = pathlib.Path(input_file).suffix
+        installed_plugins = qgis.utils.available_plugins
 
         if file_extension == '.csv':
             try:
@@ -331,26 +340,33 @@ class PluginExporter:
                 self.iface.messageBar().pushMessage("Error",
                                                     "Unable to read the JSON file.",
                                                     level=Qgis.Critical)
-
-            pyplugin_installer.instance().fetchAvailablePlugins(False)
-            for plugin in plugins:
-                try:
-                    pyplugin_installer.instance().installPlugin(plugin['id'])
-                except KeyError:
-                    self.iface.messageBar().pushMessage("Error",
-                                                        "Could not install " + plugin['name'] + ".",
-                                                        level=Qgis.Critical)
         else:
             self.iface.messageBar().pushMessage("Error",
                                                 "Unsupported file type.",
                                                 level=Qgis.Critical)
 
+        for plugin in plugins:
+            if self.dlg.chk_skip_installed.isChecked():
+                if plugin['id'] in installed_plugins:
+                    self.iface.messageBar().pushInfo("Info",
+                                                     "Skipped " + plugin['name'] + " as it's already installed.")
+                    continue
+            try:
+               pyplugin_installer.instance().installPlugin(plugin['id'])
+               self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
+            except KeyError:
+                self.iface.messageBar().pushMessage("Error",
+                                                    "Could not install " + plugin['name'] + ".",
+                                                    level=Qgis.Critical)
+
     def toggle_widget(self):
         if self.dlg.rd_import.isChecked():
             self.dlg.file_output_export.setEnabled(False)
             self.dlg.combo_file_format.setEnabled(False)
+            self.dlg.chk_skip_installed.setEnabled(True)
             self.dlg.file_input_import.setEnabled(True)
         else:
             self.dlg.file_input_import.setEnabled(False)
+            self.dlg.chk_skip_installed.setEnabled(False)
             self.dlg.file_output_export.setEnabled(True)
             self.dlg.combo_file_format.setEnabled(True)
