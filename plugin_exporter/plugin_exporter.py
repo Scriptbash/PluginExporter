@@ -226,9 +226,9 @@ class PluginExporter:
         self.add_plugins_to_table(plugins)
 
     def add_plugins_to_table(self, plugins):
+        self.plugins_metadata.clear()
         self.clear_plugins_table()
         table = self.dlg.table_plugins
-
         for plugin in plugins:
             metadata = self.iface.pluginManagerInterface().pluginMetadata(plugin)
             if self.dlg.chk_official_plugins.isChecked():
@@ -323,6 +323,7 @@ class PluginExporter:
         input_file = self.dlg.file_input_import.filePath()
         file_extension = pathlib.Path(input_file).suffix
         installed_plugins = qgis.utils.available_plugins
+        pyplugin_installer.instance().fetchAvailablePlugins()
 
         if file_extension == '.csv':
             try:
