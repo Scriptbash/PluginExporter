@@ -280,7 +280,7 @@ class PluginExporter:
         while table.rowCount() > 0:
             table.removeRow(0)
 
-    #Exports the selected plugin into a .csv or json file
+    # Exports the selected plugin into a .csv or json file
     def export_plugins(self):
         file_format = self.dlg.combo_file_format.currentText()
         output_file = self.dlg.file_output_export.filePath()
@@ -302,20 +302,35 @@ class PluginExporter:
                         plugin_list.append(current_plugin)
         if plugin_list:
             if output_file:
-                if file_format == '.csv':
-                    with open(output_file, 'w', encoding='utf8', newline='') as f:
-                        keys = plugin_list[0].keys()
-                        dict_writer = csv.DictWriter(f, keys)
-                        dict_writer.writeheader()
-                        dict_writer.writerows(plugin_list)
-                    self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
-                elif file_format == '.json':
-                    with open(output_file, 'w') as file:
-                        json.dump(plugin_list, file)
-                    self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
+                try:
+                    if file_format == '.csv':
+                        with open(output_file, 'w', encoding='utf8', newline='') as f:
+                            keys = plugin_list[0].keys()
+                            dict_writer = csv.DictWriter(f, keys)
+                            dict_writer.writeheader()
+                            dict_writer.writerows(plugin_list)
+                        self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
+                    elif file_format == '.json':
+                        with open(output_file, 'w') as file:
+                            json.dump(plugin_list, file)
+                        self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
+                except IsADirectoryError:
+                    self.iface.messageBar().pushMessage("Error",
+                                                        "You must select a file, not a directory.",
+                                                        level=Qgis.Critical)
+                except PermissionError:
+                    self.iface.messageBar().pushMessage("Error",
+                                                        "You don't have permission to write to this directory. Please "
+                                                        "pick another location and try again.",
+                                                        level=Qgis.Critical)
+                except FileNotFoundError:
+                    self.iface.messageBar().pushMessage("Error",
+                                                        "No such file or directory. "
+                                                        "Please check the path is valid.",
+                                                        level=Qgis.Critical)
             else:
                 self.iface.messageBar().pushMessage("Error",
-                                                    "You must select an output directory.",
+                                                    "You must select an output file.",
                                                     level=Qgis.Critical)
         else:
             self.iface.messageBar().pushMessage("Error",
@@ -338,6 +353,7 @@ class PluginExporter:
                 self.iface.messageBar().pushMessage("Error",
                                                     "Unable to read the CSV file.",
                                                     level=Qgis.Critical)
+                return
         elif file_extension == '.json':
             try:
                 f = open(input_file)
@@ -346,10 +362,12 @@ class PluginExporter:
                 self.iface.messageBar().pushMessage("Error",
                                                     "Unable to read the JSON file.",
                                                     level=Qgis.Critical)
+                return
         else:
             self.iface.messageBar().pushMessage("Error",
                                                 "Unsupported file type.",
                                                 level=Qgis.Critical)
+            return
 
         for plugin in plugins:
             if self.dlg.chk_skip_installed.isChecked():
