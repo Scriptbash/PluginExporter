@@ -15,22 +15,20 @@ Plugin Exporter can also use the generated file to install the plugins back in Q
 ### Installing
 I am planning on releasing the plugin in the official QGIS repo soon. In the meantime, please use my custom repository.
 * In the QGIS plugin manager, click on settings
-* Add the following URL: https://scriptbash.github.io/plugins.xml
+* Add a new repository and enter the following URL: https://scriptbash.github.io/plugins.xml
 * Search for "Plugin Exporter" in the "all" menu
 * Click on install
 
 ### How to use Plugin Exporter
 #### Export plugins
-* Click on the "Plugins" menu
-* Select "Plugin Exporter" and click on "Export plugins"
+* Click on the Plugin Exporter icon <img src="https://github.com/Scriptbash/PluginExporter/blob/main/plugin_exporter/icon.png?raw=true" alt="drawing" width="30"/> or go in the "Plugins" menu, select "Plugin Exporter" and click on "Export plugins"
 * You can then select which plugins to export
 * Select a format (.csv or .json)
 * Select an output file and click on "OK"
 * The plugin will export the plugins
 
 #### Import plugins
-* Click on the "Plugins" menu
-* Select "Plugin Exporter" and click on "Export plugins"
+* Click on the Plugin Exporter icon <img src="https://github.com/Scriptbash/PluginExporter/blob/main/plugin_exporter/icon.png?raw=true" alt="drawing" width="30"/> or go in the "Plugins" menu, select "Plugin Exporter" and click on "Export plugins"
 * Select the "Import" option
 * Select a file to import and click on "OK"
 * The plugin will install the plugins and by default will skip those already installed
