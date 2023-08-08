@@ -4,13 +4,13 @@
 
 [general]
 name=Plugin Exporter
-qgisMinimumVersion=3.0
+qgisMinimumVersion=3.20
 description=Exports plugins
 version=0.1.0
 author=Francis Lapointe
 email=francis.lapointe5@usherbrooke.ca
 
-about=Plugin Exporter allows you to export your installed plugins into a text file or a .zip file. The exported .zip file can be imported back.
+about=Plugin Exporter is a QGIS plugin that can export installed plugins into a .csv or .json file. The user can export all the installed plugins or select the plugins they want to export. Plugin Exporter can also use the generated file to install the plugins back in QGIS.
 
 tracker=https://github.com/Scriptbash/PluginExporter/issues
 repository=https://github.com/Scriptbash/PluginExporter
