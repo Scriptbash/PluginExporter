@@ -7,37 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>687</width>
-    <height>483</height>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Plugin Exporter</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="1" column="0">
-    <widget class="QTableWidget" name="table_plugins">
-     <column>
-      <property name="text">
-       <string>Selected</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Version</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Author</string>
-      </property>
-     </column>
-    </widget>
-   </item>
    <item row="3" column="0">
     <widget class="QWidget" name="widget_5" native="true">
      <layout class="QGridLayout" name="gridLayout_6">
@@ -81,16 +57,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QRadioButton" name="rd_export">
-     <property name="text">
-      <string>Export</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="0">
     <widget class="QWidget" name="widget_6" native="true">
      <layout class="QGridLayout" name="gridLayout_2">
@@ -123,6 +89,30 @@
      </layout>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QTableWidget" name="table_plugins">
+     <column>
+      <property name="text">
+       <string>Selected</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Version</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Author</string>
+      </property>
+     </column>
+    </widget>
+   </item>
    <item row="4" column="0">
     <widget class="QRadioButton" name="rd_import">
      <property name="text">
@@ -146,10 +136,10 @@
        <number>0</number>
       </property>
       <property name="horizontalSpacing">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="verticalSpacing">
-       <number>6</number>
+       <number>15</number>
       </property>
       <item row="1" column="2">
        <spacer name="horizontalSpacer">
@@ -167,16 +157,22 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="chk_active_plugins">
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="btn_select_all">
+        <property name="minimumSize">
+         <size>
+          <width>130</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>130</width>
+          <height>30</height>
+         </size>
         </property>
         <property name="text">
-         <string>Active plugins only</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>Select all</string>
         </property>
        </widget>
       </item>
@@ -199,41 +195,35 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="btn_select_all">
-        <property name="minimumSize">
-         <size>
-          <width>130</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>130</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Select all</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QPushButton" name="btn_deselect_all">
         <property name="minimumSize">
          <size>
           <width>130</width>
-          <height>0</height>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>130</width>
-          <height>16777215</height>
+          <height>30</height>
          </size>
         </property>
         <property name="text">
          <string>Deselect all</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="chk_active_plugins">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Active plugins only</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -248,6 +238,16 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QRadioButton" name="rd_export">
+     <property name="text">
+      <string>Export</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>

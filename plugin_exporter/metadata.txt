@@ -6,7 +6,7 @@
 name=Plugin Exporter
 qgisMinimumVersion=3.0
 description=Exports plugins
-version=0.1
+version=0.1.0
 author=Francis Lapointe
 email=francis.lapointe5@usherbrooke.ca
 
@@ -23,7 +23,7 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python, qgis, plugin
+tags=python, qgis, plugin, importer, exporter
 
 homepage=https://github.com/Scriptbash/PluginExporter
 category=Plugins

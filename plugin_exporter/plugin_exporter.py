@@ -23,20 +23,18 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QLabel, QCheckBox, QComboBox
-from qgis.gui import QgsPluginManagerInterface
+from qgis.PyQt.QtWidgets import QAction, QLabel, QCheckBox
 from qgis.core import Qgis
 import qgis.utils
-
-# Initialize Qt resources from file resources.py
-from .resources import *
-# Import the code for the dialog
-from .plugin_exporter_dialog import PluginExporterDialog
 import pyplugin_installer
 import os.path
 import csv
 import json
 import pathlib
+# Initialize Qt resources from file resources.py
+from .resources import *
+# Import the code for the dialog
+from .plugin_exporter_dialog import PluginExporterDialog
 
 
 class PluginExporter:
@@ -91,7 +89,6 @@ class PluginExporter:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('PluginExporter', message)
-
 
     def add_action(
         self,
@@ -180,7 +177,6 @@ class PluginExporter:
         # will be set False in run()
         self.first_start = True
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -189,15 +185,15 @@ class PluginExporter:
                 action)
             self.iface.removeToolBarIcon(action)
 
-
     def run(self):
         """Run method that performs all the real work"""
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start:
             self.first_start = False
             self.dlg = PluginExporterDialog()
+            pyplugin_installer.instance().reloadAndExportData()  # Generate metadata cache
             self.get_plugins()
             self.dlg.btn_select_all.clicked.connect(self.select_all)
             self.dlg.btn_deselect_all.clicked.connect(self.deselect_all)
@@ -218,19 +214,24 @@ class PluginExporter:
             elif self.dlg.rd_import.isChecked():
                 self.import_plugins()
 
+    # Creates a list of all the plugin IDs
     def get_plugins(self):
-        if self.dlg.chk_active_plugins.isChecked():
+        if self.dlg.chk_active_plugins.isChecked():  # Only active plugins
             plugins = qgis.utils.active_plugins
         else:
-            plugins = qgis.utils.available_plugins
+            plugins = qgis.utils.available_plugins  # All plugins
         self.add_plugins_to_table(plugins)
 
+    # Adds all the installed plugins into the table
     def add_plugins_to_table(self, plugins):
         self.plugins_metadata.clear()
         self.clear_plugins_table()
         table = self.dlg.table_plugins
+
         for plugin in plugins:
             metadata = self.iface.pluginManagerInterface().pluginMetadata(plugin)
+            if metadata is None:
+                continue  # Skip plugins with no metadata
             if self.dlg.chk_official_plugins.isChecked():
                 if metadata['zip_repository'] == 'QGIS Official Plugin Repository':
                     self.plugins_metadata.append(metadata)  # Adds the plugin metadata to the list
@@ -257,6 +258,7 @@ class PluginExporter:
 
         table.resizeColumnsToContents()
 
+    # Checks all the plugin checkboxes
     def select_all(self):
         table = self.dlg.table_plugins
         rows = table.rowCount()
@@ -264,6 +266,7 @@ class PluginExporter:
             checkbox = table.cellWidget(row, 0)
             checkbox.setChecked(True)
 
+    # Uncheck all the plugin checkboxes
     def deselect_all(self):
         table = self.dlg.table_plugins
         rows = table.rowCount()
@@ -271,11 +274,13 @@ class PluginExporter:
             checkbox = table.cellWidget(row, 0)
             checkbox.setChecked(False)
 
+    # Deletes every row of the table
     def clear_plugins_table(self):
         table = self.dlg.table_plugins
         while table.rowCount() > 0:
             table.removeRow(0)
 
+    #Exports the selected plugin into a .csv or json file
     def export_plugins(self):
         file_format = self.dlg.combo_file_format.currentText()
         output_file = self.dlg.file_output_export.filePath()
@@ -289,10 +294,8 @@ class PluginExporter:
                 current_widget = table.cellWidget(row, col)
                 if isinstance(current_widget, QCheckBox):
                     if not current_widget.isChecked():
-                        break
+                        break   # Don't add plugins that are not checked
                 elif isinstance(current_widget, QLabel):
-                    # plugin_list.append(current_widget.text())
-                    # next((item for item in dicts if item["name"] == "Pam"), None)
                     current_plugin = next(
                         (item for item in self.plugins_metadata if item["name"] == current_widget.text()), None)
                     if current_plugin:
@@ -301,10 +304,10 @@ class PluginExporter:
             if output_file:
                 if file_format == '.csv':
                     with open(output_file, 'w', encoding='utf8', newline='') as f:
-                            keys = plugin_list[0].keys()
-                            dict_writer = csv.DictWriter(f, keys)
-                            dict_writer.writeheader()
-                            dict_writer.writerows(plugin_list)
+                        keys = plugin_list[0].keys()
+                        dict_writer = csv.DictWriter(f, keys)
+                        dict_writer.writeheader()
+                        dict_writer.writerows(plugin_list)
                     self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
                 elif file_format == '.json':
                     with open(output_file, 'w') as file:
@@ -319,11 +322,12 @@ class PluginExporter:
                                                 "At least one plugin must be selected.",
                                                 level=Qgis.Critical)
 
+    # Installs the plugins read from a .csv or .json file
     def import_plugins(self):
         input_file = self.dlg.file_input_import.filePath()
         file_extension = pathlib.Path(input_file).suffix
         installed_plugins = qgis.utils.available_plugins
-        pyplugin_installer.instance().fetchAvailablePlugins()
+        pyplugin_installer.instance().fetchAvailablePlugins(True)
 
         if file_extension == '.csv':
             try:
@@ -361,6 +365,7 @@ class PluginExporter:
                                                     "Could not install " + plugin['name'] + ".",
                                                     level=Qgis.Critical)
 
+    # Disables and enables widgets
     def toggle_widget(self):
         if self.dlg.rd_import.isChecked():
             self.dlg.file_output_export.setEnabled(False)
@@ -373,6 +378,7 @@ class PluginExporter:
             self.dlg.file_output_export.setEnabled(True)
             self.dlg.combo_file_format.setEnabled(True)
 
+    # Sets the file extension filter for the QgsFileWidget
     def set_filter(self):
         if self.dlg.combo_file_format.currentText() == '.json':
             self.dlg.file_output_export.setFilter('*.json')
