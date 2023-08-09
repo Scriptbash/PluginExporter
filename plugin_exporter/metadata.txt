@@ -6,7 +6,7 @@
 name=Plugin Exporter
 qgisMinimumVersion=3.20
 description=A QGIS plugin for exporting plugins
-version=0.1.0
+version=0.1.1
 author=Francis Lapointe
 email=francis.lapointe5@usherbrooke.ca
 
