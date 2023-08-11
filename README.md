@@ -13,10 +13,9 @@ Plugin Exporter can also use the generated file to install the plugins back in Q
 * QGIS 3.28 or above (I did not test the plugin with older versions).
 
 ### Installing
-I am planning on releasing the plugin in the official QGIS repo soon. In the meantime, please use my custom repository.
-* In the QGIS plugin manager, click on settings
-* Add a new repository and enter the following URL: https://scriptbash.github.io/plugins.xml
-* Search for "Plugin Exporter" in the "all" menu
+Plugin Exporter is now available in the QGIS repos! https://plugins.qgis.org/plugins/plugin_exporter/
+* Go in the Plugins menu and click on Manage and Install Plugins
+* Search for Plugin Exporter
 * Click on install
 
 ### How to use Plugin Exporter
