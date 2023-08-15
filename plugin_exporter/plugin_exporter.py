@@ -194,7 +194,8 @@ class PluginExporter:
         if self.first_start:
             self.first_start = False
             self.dlg = PluginExporterDialog()
-            self.core_plugins = ['processing', 'otbprovider', 'grassprovider', 'db_manager', 'MetaSearch']
+            self.core_plugins = ['processing', 'otbprovider', 'grassprovider',
+                                 'db_manager', 'MetaSearch', 'sagaprovider']
             self.pyplugin = pyplugin_installer.instance()
             self.pyplugin.reloadAndExportData()  # Generate metadata cache
             self.get_plugins()
