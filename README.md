@@ -4,7 +4,7 @@ A QGIS plugin for exporting plugins
 ## Description
 
 Plugin Exporter is a QGIS plugin that can export installed plugins into a .csv or .json file. The user can export all the installed plugins or select the plugins they want to export.
-Plugin Exporter can also use the generated file to install the plugins back in QGIS.
+Plugin Exporter can also use the generated file to install the plugins back in QGIS. Third party repositories are also supported as of v0.2.0.
 
 ## Getting Started
 
@@ -22,6 +22,7 @@ Plugin Exporter is now available in the QGIS repos! https://plugins.qgis.org/plu
 #### Export plugins
 * Click on the Plugin Exporter icon <img src="https://github.com/Scriptbash/PluginExporter/blob/main/plugin_exporter/icon.png?raw=true" alt="drawing" width="30"/> or go in the "Plugins" menu, select "Plugin Exporter" and click on "Export plugins"
 * You can then select which plugins to export
+* By default, third party repositories (either enabled or disabled) are also exported
 * Select a format (.csv or .json)
 * Select an output file and click on "OK"
 * The plugin will export the plugins
@@ -30,7 +31,7 @@ Plugin Exporter is now available in the QGIS repos! https://plugins.qgis.org/plu
 * Click on the Plugin Exporter icon <img src="https://github.com/Scriptbash/PluginExporter/blob/main/plugin_exporter/icon.png?raw=true" alt="drawing" width="30"/> or go in the "Plugins" menu, select "Plugin Exporter" and click on "Export plugins"
 * Select the "Import" option
 * Select a file to import and click on "OK"
-* The plugin will install the plugins and by default will skip those already installed
+* The plugin will add third party repositories if they were exported and install the plugins. By default it will skip those already installed
 
 ## Screenshot
 ![image](https://github.com/Scriptbash/PluginExporter/assets/98601298/4b92a3da-2cab-448c-865b-0949eeef5f3f)
