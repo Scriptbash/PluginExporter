@@ -194,7 +194,8 @@ class PluginExporter:
         if self.first_start:
             self.first_start = False
             self.dlg = PluginExporterDialog()
-            pyplugin_installer.instance().reloadAndExportData()  # Generate metadata cache
+            self.pyplugin = pyplugin_installer.instance()
+            self.pyplugin.reloadAndExportData()  # Generate metadata cache
             self.get_plugins()
             self.dlg.btn_select_all.clicked.connect(self.select_all)
             self.dlg.btn_deselect_all.clicked.connect(self.deselect_all)
@@ -389,9 +390,10 @@ class PluginExporter:
             try:
                 if plugin['id'] == '-':  # It's a third party repository
                     self.add_repository(plugin)
-                pyplugin_installer.instance().fetchAvailablePlugins(True)
-                pyplugin_installer.instance().installPlugin(plugin['id'])
-                self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
+                    self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was added to the repositories.")
+                else:
+                    self.pyplugin.installPlugin(plugin['id'])
+                    self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
             except KeyError:
                 self.iface.messageBar().pushMessage("Error",
                                                     "Could not install " + plugin['name'] + ".",
@@ -402,17 +404,18 @@ class PluginExporter:
     def add_repository(self, repo_info):
         settings = QgsSettings()
         settings.beginGroup("app/plugin_repositories")
-        reposName = repo_info['name']
-        reposURL = repo_info['zip_repository']
-        if reposName in repositories.all():
-            reposName = reposName + "(2)"
+        repo_name = repo_info['name']
+        repo_url = repo_info['zip_repository']
+        if repo_name in repositories.all():
+            repo_name = repo_name + "(2)"
+            self.iface.messageBar().pushInfo("Info",
+                                             "Found a repository with the same names. Please check your repository "
+                                             "settings for duplicate entries, the one imported ends with (2).")
         # add to settings
-        settings.setValue(reposName + "/url", reposURL)
-        settings.setValue(reposName + "/authcfg", "") #dlg.editAuthCfg.text().strip())
-        settings.setValue(reposName + "/enabled", "True") #bool(dlg.checkBoxEnabled.checkState()))
-        # refresh lists and populate widgets
-        #plugins.removeRepository(reposName)
-        pyplugin_installer.instance().reloadAndExportData()
+        settings.setValue(repo_name + "/url", repo_url)
+        settings.setValue(repo_name + "/authcfg", "")
+        settings.setValue(repo_name + "/enabled", "True")
+        self.pyplugin.reloadAndExportData()
 
     # Disables and enables widgets
     def toggle_widget(self):
