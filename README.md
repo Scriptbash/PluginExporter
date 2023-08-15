@@ -1,4 +1,4 @@
-# Plugin Exporter
+# Plugin Exporter <img src="https://github.com/Scriptbash/PluginExporter/blob/main/plugin_exporter/icon.png?raw=true" alt="PluginExporter" width="90"/>
 A QGIS plugin for exporting plugins
 
 ## Description
@@ -34,8 +34,7 @@ Plugin Exporter is now available in the QGIS repos! https://plugins.qgis.org/plu
 * The plugin will add third party repositories if they were exported and install the plugins. By default it will skip those already installed
 
 ## Screenshot
-![image](https://github.com/Scriptbash/PluginExporter/assets/98601298/4b92a3da-2cab-448c-865b-0949eeef5f3f)
-
+![image](https://github.com/Scriptbash/PluginExporter/assets/98601298/0a1c4ee9-14fc-449c-a431-c60afde489db)
 
 ## Help
 
