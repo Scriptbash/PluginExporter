@@ -194,6 +194,7 @@ class PluginExporter:
         if self.first_start:
             self.first_start = False
             self.dlg = PluginExporterDialog()
+            self.core_plugins = ['processing', 'otbprovider', 'grassprovider', 'db_manager', 'MetaSearch']
             self.pyplugin = pyplugin_installer.instance()
             self.pyplugin.reloadAndExportData()  # Generate metadata cache
             self.get_plugins()
@@ -201,6 +202,7 @@ class PluginExporter:
             self.dlg.btn_deselect_all.clicked.connect(self.deselect_all)
             self.dlg.chk_active_plugins.stateChanged.connect(self.get_plugins)
             self.dlg.chk_official_plugins.stateChanged.connect(self.get_plugins)
+            self.dlg.chk_core_plugins.stateChanged.connect(self.get_plugins)
             self.dlg.btn_refresh.clicked.connect(self.get_plugins)
             self.dlg.rd_import.toggled.connect(self.toggle_widget)
             self.dlg.combo_file_format.currentIndexChanged.connect(self.set_filter)
@@ -222,6 +224,8 @@ class PluginExporter:
             plugins = qgis.utils.active_plugins
         else:
             plugins = qgis.utils.available_plugins  # All plugins
+        if not self.dlg.chk_core_plugins.isChecked():
+            plugins = [x for x in plugins if x not in self.core_plugins]  # Exclude core plugins
         self.add_plugins_to_table(plugins)
 
     # Adds all the installed plugins into the table
