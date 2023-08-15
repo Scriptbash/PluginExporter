@@ -295,7 +295,7 @@ class PluginExporter:
         rows = table.rowCount()
         cols = table.columnCount()
 
-        if self.dlg.chk_core_plugins.isChecked():
+        if self.dlg.chk_ext_repos.isChecked():
             repos = repositories.allEnabled()
         else:
             repos = None
@@ -329,6 +329,12 @@ class PluginExporter:
                         self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
                     elif file_format == '.json':
                         with open(output_file, 'w') as file:
+                            if repos:
+                                for key, value in repos.items():
+                                    if key == 'QGIS Official Plugin Repository':
+                                        pass
+                                    else:
+                                        plugin_list.insert(0, {'id': '-', 'name': key, 'zip_repository': value['url']})
                             json.dump(plugin_list, file)
                         self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
                 except IsADirectoryError:
@@ -394,7 +400,6 @@ class PluginExporter:
             try:
                 if plugin['id'] == '-':  # It's a third party repository
                     self.add_repository(plugin)
-                    self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was added to the repositories.")
                 else:
                     self.pyplugin.installPlugin(plugin['id'])
                     self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
@@ -411,21 +416,23 @@ class PluginExporter:
         repo_name = repo_info['name']
         repo_url = repo_info['zip_repository']
         if repo_name in repositories.all():
-            repo_name = repo_name + "(2)"
             self.iface.messageBar().pushInfo("Info",
-                                             "Found a repository with the same names. Please check your repository "
-                                             "settings for duplicate entries, the one imported ends with (2).")
-        # add to settings
-        settings.setValue(repo_name + "/url", repo_url)
-        settings.setValue(repo_name + "/authcfg", "")
-        settings.setValue(repo_name + "/enabled", "True")
-        self.pyplugin.reloadAndExportData()
+                                             "Found a repository with the same name. Skipping repository " + repo_name +
+                                             ". This could prevent a plugin from being installed.")
+        else:
+            # Adds the repo inside the settings
+            settings.setValue(repo_name + "/url", repo_url)
+            settings.setValue(repo_name + "/authcfg", "")
+            settings.setValue(repo_name + "/enabled", "True")
+            self.pyplugin.reloadAndExportData()
+            self.iface.messageBar().pushSuccess("Success", repo_name + " was added to the repositories.")
 
     # Disables and enables widgets
     def toggle_widget(self):
         if self.dlg.rd_import.isChecked():
             self.dlg.file_output_export.setEnabled(False)
             self.dlg.combo_file_format.setEnabled(False)
+            self.dlg.chk_ext_repos.setEnabled(False)
             self.dlg.chk_skip_installed.setEnabled(True)
             self.dlg.file_input_import.setEnabled(True)
         else:
@@ -433,6 +440,7 @@ class PluginExporter:
             self.dlg.chk_skip_installed.setEnabled(False)
             self.dlg.file_output_export.setEnabled(True)
             self.dlg.combo_file_format.setEnabled(True)
+            self.dlg.chk_ext_repos.setEnabled(True)
 
     # Sets the file extension filter for the QgsFileWidget
     def set_filter(self):
