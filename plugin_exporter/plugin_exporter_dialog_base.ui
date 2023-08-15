@@ -44,6 +44,16 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="chk_ext_repos">
+        <property name="text">
+         <string>Include third party repositories</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -231,6 +241,16 @@
        <widget class="QCheckBox" name="chk_official_plugins">
         <property name="text">
          <string>Official plugins only</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="chk_core_plugins">
+        <property name="text">
+         <string>Include core plugins</string>
         </property>
         <property name="checked">
          <bool>true</bool>

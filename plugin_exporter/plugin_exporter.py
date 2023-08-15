@@ -24,9 +24,10 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QLabel, QCheckBox
-from qgis.core import Qgis
-import qgis.utils
+from qgis.core import Qgis, QgsSettings
+from pyplugin_installer.installer_data import repositories
 import pyplugin_installer
+import qgis.utils
 import os.path
 import csv
 import json
@@ -289,6 +290,11 @@ class PluginExporter:
         rows = table.rowCount()
         cols = table.columnCount()
 
+        if self.dlg.chk_core_plugins.isChecked():
+            repos = repositories.allEnabled()
+        else:
+            repos = None
+
         for row in range(rows):
             for col in range(cols):
                 current_widget = table.cellWidget(row, col)
@@ -308,6 +314,12 @@ class PluginExporter:
                             keys = plugin_list[0].keys()
                             dict_writer = csv.DictWriter(f, keys)
                             dict_writer.writeheader()
+                            if repos:
+                                for key, value in repos.items():
+                                    if key == 'QGIS Official Plugin Repository':
+                                        pass
+                                    else:
+                                        dict_writer.writerow({'id': '-', 'name': key, 'zip_repository': value['url']})
                             dict_writer.writerows(plugin_list)
                         self.iface.messageBar().pushSuccess("Success", "Selected plugins were exported successfully.")
                     elif file_format == '.json':
@@ -342,7 +354,6 @@ class PluginExporter:
         input_file = self.dlg.file_input_import.filePath()
         file_extension = pathlib.Path(input_file).suffix
         installed_plugins = qgis.utils.available_plugins
-        pyplugin_installer.instance().fetchAvailablePlugins(True)
 
         if file_extension == '.csv':
             try:
@@ -376,12 +387,32 @@ class PluginExporter:
                                                      "Skipped " + plugin['name'] + " as it's already installed.")
                     continue
             try:
+                if plugin['id'] == '-':  # It's a third party repository
+                    self.add_repository(plugin)
+                pyplugin_installer.instance().fetchAvailablePlugins(True)
                 pyplugin_installer.instance().installPlugin(plugin['id'])
                 self.iface.messageBar().pushSuccess("Success", plugin['name'] + " was installed successfully.")
             except KeyError:
                 self.iface.messageBar().pushMessage("Error",
                                                     "Could not install " + plugin['name'] + ".",
                                                     level=Qgis.Critical)
+
+    # This method is pretty much a copy of the addRepository function in
+    # https://github.com/qgis/QGIS/blob/master/python/pyplugin_installer/installer.py
+    def add_repository(self, repo_info):
+        settings = QgsSettings()
+        settings.beginGroup("app/plugin_repositories")
+        reposName = repo_info['name']
+        reposURL = repo_info['zip_repository']
+        if reposName in repositories.all():
+            reposName = reposName + "(2)"
+        # add to settings
+        settings.setValue(reposName + "/url", reposURL)
+        settings.setValue(reposName + "/authcfg", "") #dlg.editAuthCfg.text().strip())
+        settings.setValue(reposName + "/enabled", "True") #bool(dlg.checkBoxEnabled.checkState()))
+        # refresh lists and populate widgets
+        #plugins.removeRepository(reposName)
+        pyplugin_installer.instance().reloadAndExportData()
 
     # Disables and enables widgets
     def toggle_widget(self):
