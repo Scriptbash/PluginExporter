@@ -6,7 +6,7 @@
 name=Plugin Exporter
 qgisMinimumVersion=3.20
 description=A QGIS plugin for exporting plugins
-version=0.2.0
+version=0.2.1
 author=Francis Lapointe
 email=francis.lapointe5@usherbrooke.ca
 
@@ -21,6 +21,8 @@ repository=https://github.com/Scriptbash/PluginExporter
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    v0.2.1
+        - Fix import file filters
     v0.2.0
         - Third party repositories can now be exported and imported
         - Add core plugin filter
