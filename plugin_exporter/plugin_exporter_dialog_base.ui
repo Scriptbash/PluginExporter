@@ -32,6 +32,16 @@
           <string>.json</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>.md</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>.pdf</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="2" column="1">
